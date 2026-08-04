@@ -4,6 +4,7 @@ import { agentTasks, agentTaskReviewComments, repositories } from '@/database/sc
 import { and, eq, desc } from 'drizzle-orm';
 import { getDaemonRuntime } from '../../../_auth';
 import { generateGithubAppJwt } from '@/lib/generate-github-app-jwt';
+import { createInboxItem } from '@/database/models/inboxItem';
 
 interface ReviewCommentInput {
   filename: string;
@@ -58,6 +59,8 @@ export async function POST(
       userId: agentTasks.userId,
       repositoryId: agentTasks.repositoryId,
       issueNumber: agentTasks.issueNumber,
+      issueTitle: agentTasks.issueTitle,
+      agentId: agentTasks.agentId,
     })
     .from(agentTasks)
     .where(and(eq(agentTasks.id, taskId), eq(agentTasks.runtimeId, runtime.id)))
@@ -210,6 +213,21 @@ export async function POST(
   } catch (err) {
     console.error('[review-comments] DB insert failed:', err);
     return NextResponse.json({ error: 'Failed to save review comments' }, { status: 500 });
+  }
+
+  if (reviewTask.issueNumber && reviewTask.issueTitle) {
+    await createInboxItem(serverDB, {
+      userId: reviewTask.userId,
+      type: 'review_requested',
+      severity: 'attention',
+      repositoryId: reviewTask.repositoryId,
+      issueNumber: reviewTask.issueNumber,
+      issueTitle: reviewTask.issueTitle,
+      title: 'Code review ready',
+      body: summary,
+      agentId: reviewTask.agentId,
+      details: { taskId, reviewCommentCount: comments.length },
+    });
   }
 
   return NextResponse.json({ comments: saved }, { status: 201 });

@@ -18,12 +18,13 @@ export function Hero() {
     <PageHeader>
       <Announcement />
       <PageHeaderHeading className="text-foreground">
-        Build your agent team. Ship more code.
+        Autonomous AI agents for your engineering team.
       </PageHeaderHeading>
       <PageHeaderDescription>
-        Think Throo turns your tasks into shipped code. Create AI agents,
-        assign them tasks like teammates, and watch them execute autonomously —
-        powered by your own Claude API key.
+        Assign any task to a developer or an AI agent from the same board.
+        Agents plan the work and open the pull request — your devs review
+        before it ships. Powered by your own Claude API key. No vendor
+        lock-in.
       </PageHeaderDescription>
 
       <PageActions>

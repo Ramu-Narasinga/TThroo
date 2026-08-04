@@ -27,7 +27,7 @@ export function NavWorkspace({
   projects,
   label,
 }: {
-  projects: { name: string; url: string; icon?: LucideIcon }[]
+  projects: { name: string; url: string; icon?: LucideIcon; badge?: number }[]
   label: string
 }) {
   const pathname = usePathname()
@@ -65,6 +65,11 @@ export function NavWorkspace({
                 <Link href={item.url} onClick={() => handleNavClick(item.name, item.url)}>
                   {item.icon && <item.icon />}
                   <span>{item.name}</span>
+                  {!!item.badge && (
+                    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                      {item.badge > 99 ? "99+" : item.badge}
+                    </span>
+                  )}
                 </Link>
               </SidebarMenuButton>
 

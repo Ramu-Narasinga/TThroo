@@ -17,6 +17,7 @@ import { issueBoardStateRouter } from './issueBoardState';
 import { issueLabelRouter } from './issueLabel';
 import { agentDocumentSkillRouter } from './agentDocumentSkill';
 import { squadRouter } from './squad';
+import { inboxRouter } from './inbox';
 
 export const lambdaRouter = router({
   document: documentRouter,
@@ -37,4 +38,5 @@ export const lambdaRouter = router({
   issueLabel: issueLabelRouter,
   agentDocumentSkill: agentDocumentSkillRouter,
   squad: squadRouter,
+  inbox: inboxRouter,
 });export type LambdaRouter = typeof lambdaRouter;
