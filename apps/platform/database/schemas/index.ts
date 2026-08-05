@@ -38,3 +38,4 @@ export * from './agentDocumentSkill';
 export * from './squad';
 export * from './squadMember';
 export * from './license';
+export * from './inboxItem';

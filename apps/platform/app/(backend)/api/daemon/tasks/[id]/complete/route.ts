@@ -4,6 +4,7 @@ import { serverDB } from '@/database';
 import { agentTasks } from '@/database/schemas';
 import { getDaemonRuntime } from '../../../_auth';
 import { updateBoardKanbanStatus } from '@/database/models/issueBoardState';
+import { createInboxItem } from '@/database/models/inboxItem';
 
 interface TaskResult {
   prUrl?: string;
@@ -72,6 +73,21 @@ export async function POST(
     } catch {
       // Board sync is best-effort — do not fail the task completion
     }
+  }
+
+  if (updated.issueNumber && updated.issueTitle) {
+    await createInboxItem(serverDB, {
+      userId: updated.userId,
+      type: isPausedOnQuestion ? 'agent_blocked' : 'task_completed',
+      severity: isPausedOnQuestion ? 'action_required' : 'info',
+      repositoryId: updated.repositoryId,
+      issueNumber: updated.issueNumber,
+      issueTitle: updated.issueTitle,
+      title: isPausedOnQuestion ? 'Agent needs your input' : 'Task completed',
+      body: isPausedOnQuestion ? result.question ?? null : result.summary ?? null,
+      agentId: updated.agentId,
+      details: { taskId: updated.id, ...result },
+    });
   }
 
   return NextResponse.json(updated);

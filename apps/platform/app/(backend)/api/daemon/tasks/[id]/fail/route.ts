@@ -4,6 +4,7 @@ import { serverDB } from '@/database';
 import { agentTasks } from '@/database/schemas';
 import { getDaemonRuntime } from '../../../_auth';
 import { updateBoardKanbanStatus } from '@/database/models/issueBoardState';
+import { createInboxItem } from '@/database/models/inboxItem';
 
 const RETRYABLE_REASONS = ['runtime_offline', 'timeout'];
 const MAX_ATTEMPTS = 2;
@@ -89,6 +90,21 @@ export async function POST(
     } catch {
       // Board sync is best-effort — do not fail the task failure handler
     }
+  }
+
+  if (failed.issueNumber && failed.issueTitle) {
+    await createInboxItem(serverDB, {
+      userId: failed.userId,
+      type: 'task_failed',
+      severity: 'action_required',
+      repositoryId: failed.repositoryId,
+      issueNumber: failed.issueNumber,
+      issueTitle: failed.issueTitle,
+      title: 'Task failed',
+      body: message ?? reason,
+      agentId: failed.agentId,
+      details: { taskId: failed.id, reason, retrying: Boolean(retryTask) },
+    });
   }
 
   return NextResponse.json({ task: failed, retryTask });

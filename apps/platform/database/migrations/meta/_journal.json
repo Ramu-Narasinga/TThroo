@@ -274,6 +274,13 @@
       "when": 1783964836868,
       "tag": "0038_bouncy_thunderbolt_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1785780060806,
+      "tag": "0039_shallow_leopardon",
+      "breakpoints": true
     }
   ]
 }

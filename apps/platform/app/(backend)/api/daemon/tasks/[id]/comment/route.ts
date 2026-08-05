@@ -5,6 +5,7 @@ import { agentTasks, issueComments, issueBoardStates, repositories } from '@/dat
 import { createServiceRoleClient } from '@/utils/supabase/service-role';
 import { getDaemonRuntime } from '../../../_auth';
 import { enqueueForAgentByName } from '@/lib/enqueueForAgent';
+import { createInboxItem } from '@/database/models/inboxItem';
 
 export async function POST(
   req: NextRequest,
@@ -38,6 +39,8 @@ export async function POST(
       userId: agentTasks.userId,
       repositoryId: agentTasks.repositoryId,
       issueNumber: agentTasks.issueNumber,
+      issueTitle: agentTasks.issueTitle,
+      agentId: agentTasks.agentId,
     })
     .from(agentTasks)
     .where(and(eq(agentTasks.id, id), eq(agentTasks.runtimeId, runtime.id)))
@@ -62,6 +65,21 @@ export async function POST(
   // Broadcast so the UI updates in real time
   const supabase = createServiceRoleClient();
   await supabase.channel(`issue-comments:${task.repositoryId}:${task.issueNumber}`).httpSend('new-comment', { comment });
+
+  if (task.issueTitle) {
+    await createInboxItem(serverDB, {
+      userId: task.userId,
+      type: 'new_comment',
+      severity: 'info',
+      repositoryId: task.repositoryId,
+      issueNumber: task.issueNumber,
+      issueTitle: task.issueTitle,
+      title: 'New comment',
+      body: commentBody,
+      agentId: task.agentId,
+      details: { commentId: comment.id, taskId: task.id },
+    });
+  }
 
   // Squad delegation: when the leader agent posts a comment on a squad-assigned issue,
   // scan for @AgentName mentions and auto-queue tasks for matched agents.

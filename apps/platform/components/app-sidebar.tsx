@@ -7,6 +7,7 @@ import {
   CreditCard,
   DollarSign,
   FlaskConical,
+  Inbox,
   LayoutDashboard,
   MessageSquare,
   Server,
@@ -30,6 +31,7 @@ import {
 import { SidebarOptInForm } from "./tokens-usage";
 import { OrgSwitcher } from "./org-switcher";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useUnreadInboxCount } from "@/hooks/useUnreadInboxCount";
 import { JoinDiscordWidget } from "./join-discord-widget";
 
 const data = {
@@ -104,6 +106,11 @@ const data = {
   ],
   navSecondary: [],
   workspace: [
+    {
+      name: "Inbox",
+      url: "/inbox",
+      icon: Inbox,
+    },
     {
       name: "Repositories",
       url: "/repositories",
@@ -187,6 +194,10 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   useCurrentUser()
+  const unreadInboxCount = useUnreadInboxCount()
+  const workspace = data.workspace.map((item) =>
+    item.name === "Inbox" ? { ...item, badge: unreadInboxCount } : item
+  )
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -198,7 +209,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavWorkspace projects={data.workspace} label="Workspace" />
+        <NavWorkspace projects={workspace} label="Workspace" />
         <NavProjects projects={data.manage} label="Manage" />
         <NavProjects projects={data.learn} label="Learn" />
       </SidebarContent>
