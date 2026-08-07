@@ -15,6 +15,18 @@ import { PricingFeatureList } from "@thinkthroo/ui/components/pricing-feature-li
 import { freeFeatures, proFeatures, pricing } from "@thinkthroo/ui/lib/pricing"
 import { siteConfig } from "@/lib/config"
 
+function rdtTrack(event: string) {
+  if (
+    typeof window !== "undefined" &&
+    (window as unknown as { rdt?: (a: string, e: string) => void }).rdt
+  ) {
+    (window as unknown as { rdt: (a: string, e: string) => void }).rdt(
+      "track",
+      event
+    )
+  }
+}
+
 export function PricingPlanGrid() {
   return (
     <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -59,7 +71,7 @@ export function PricingPlanGrid() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" asChild>
+          <Button className="w-full" asChild onClick={() => rdtTrack("Lead")}>
             <Link href={`${siteConfig.links.appLogin}?next=/account/billing`}>
               Get Pro
             </Link>

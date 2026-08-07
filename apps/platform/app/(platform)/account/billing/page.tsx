@@ -39,6 +39,8 @@ function BillingPageContent() {
     } else if (type === 'license') {
       toast.success("Payment successful — you're now on Pro!")
       fetchOrganizations()
+      const rdt = (window as unknown as { rdt?: (a: string, e: string) => void }).rdt
+      if (rdt) rdt("track", "Purchase")
     }
 
     window.history.replaceState({}, "", "/account/billing")
